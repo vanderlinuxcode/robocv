@@ -4,6 +4,7 @@ Identificação Acadêmica
 Descrição
 Objetivos
 Arquitetura da Solução
+Diagrama da Arquitetura
 Pontos Arquiteturais Chave
 Desafios Arquiteturais: Por que não usamos a Vercel?
 Resiliência e Recuperação de Desastres
