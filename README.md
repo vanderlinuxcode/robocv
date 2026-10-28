@@ -1,4 +1,3 @@
-cat > README.md << 'EOF'
 # RoboCV - Plataforma Multi-Tenant de Atendimento Conversacional
 
 ## Identificação Acadêmica
@@ -55,9 +54,7 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
                             ┌──────────────────┐
                             │ WhatsApp Business│
                             │      API         │
-                            └──────────────────┘
-
-
+                            └─────────────────┘
 Pontos Arquiteturais Chave:
 
     Cloudflare (Zero Trust): Provê o túnel reverso, evitando a exposição de portas na Oracle Cloud (OCI).
@@ -87,19 +84,19 @@ Inicialmente, a aplicação foi hospedada na AWS. No entanto, a instância sofre
 
 Para garantir a continuidade do negócio, a arquitetura foi reconstruída e migrada emergencialmente para a Oracle Cloud Infrastructure (OCI). Essa transição forçada trouxe aprendizados valiosos e moldou a arquitetura atual:
 
-1. Isolamento de Rede: A adoção do Cloudflare Tunnel (Zero Trust) na OCI eliminou a necessidade de expor portas públicas, mitigando ataques e aumentando a segurança.
+    Isolamento de Rede: A adoção do Cloudflare Tunnel (Zero Trust) na OCI eliminou a necessidade de expor portas públicas, mitigando ataques e aumentando a segurança.
 
-2. Recuperação Rápida: Com o código versionado no GitHub e o banco de dados em nuvem gerenciado (MongoDB Atlas), a reconstrução da aplicação na OCI foi realizada em tempo recorde.
+    Recuperação Rápida: Com o código versionado no GitHub e o banco de dados em nuvem gerenciado (MongoDB Atlas), a reconstrução da aplicação na OCI foi realizada em tempo recorde.
 
-3. Alta Disponibilidade: A implementação do PM2 na OCI garantiu que, mesmo em caso de falhas no processo, o Node.js fosse reiniciado automaticamente, mantendo o sistema escalável e em produção.
+    Alta Disponibilidade: A implementação do PM2 na OCI garantiu que, mesmo em caso de falhas no processo, o Node.js fosse reiniciado automaticamente, mantendo o sistema escalável e em produção.
 
 Stack Tecnológica
 
 A aplicação não é monolítica, nem puramente HTML. Ela é dividida em duas grandes camadas:
 
-1. Camada de Apresentação (Frontend): SPA (Single Page Application) desenvolvida em React (JavaScript) e empacotada pelo Vite. O código-fonte em JSX é compilado para um bundle otimizado de HTML, CSS e JavaScript.
+    Camada de Apresentação (Frontend): SPA (Single Page Application) desenvolvida em React (JavaScript) e empacotada pelo Vite. O código-fonte em JSX é compilado para um bundle otimizado de HTML, CSS e JavaScript.
 
-2. Camada de Aplicação (Backend/Proxy): Servidor Node.js com o framework Express, responsável por servir os arquivos estáticos (build do React) e atuar como API Gateway (BFF) para o robocv.
+    Camada de Aplicação (Backend/Proxy): Servidor Node.js com o framework Express, responsável por servir os arquivos estáticos (build do React) e atuar como API Gateway (BFF) para o robocv.
 
 Tecnologias Utilizadas
 
@@ -145,24 +142,26 @@ Pré-requisitos
 
 Instalação (Desenvolvimento)
 
-1. Clone o repositório:
-   
+    Clone o repositório:
+    bash
+
 git clone https://github.com/seu-usuario/robocv.git
 
-2. Acesse o diretório:
+Acesse o diretório:
+bash
 
-   cd robocv
+cd robocv
 
-3. Instale as dependências:
+Instale as dependências:
+bash
 
-   npm install
+npm install
 
-4. Crie o arquivo .env com base no .env.example e preencha as credenciais do Mongo, Telegram e Robocv.
+Crie o arquivo .env com base no .env.example e preencha as credenciais do Mongo, Telegram e Robocv.
 
-5. Inicie o servidor:
-
-   node server.js
-
+Inicie o servidor:
+bash
+node server.js
 Como Executar (Produção com PM2)
 
 Para manter o sistema rodando continuamente e com resiliência na OCI, utiliza-se o PM2:
@@ -173,6 +172,7 @@ pm2 save
 pm2 startup
 
 Para atualizar as variáveis de ambiente após editar o .env:
+bash
 
 pm2 restart robocv --update-env
 
@@ -223,5 +223,3 @@ Licença
 A ser definido pela equipe.
 
 Status do Projeto: Em desenvolvimento / Em produção
-
-
