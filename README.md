@@ -1,28 +1,71 @@
-# RoboCV - Plataforma Multi-Tenant de Atendimento Conversacional
+Segue a versão revisada e padronizada para o `README.md` do GitHub, com títulos hierárquicos, sumário navegável, tabelas Markdown, listas consistentes e blocos de código corretamente delimitados. Mantive o conteúdo técnico e os nomes das tecnologias, ajustando a formatação para renderização correta no GitHub.
+
+Escrita
+
+# RoboCV — Plataforma Multi-Tenant de Atendimento Conversacional
+
+## Sumário
+
+- Identificação Acadêmica
+- Descrição
+- Objetivos
+- Arquitetura da Solução
+  - Pontos Arquiteturais Chave
+  - Desafios Arquiteturais: Por que não usamos a Vercel?
+  - Resiliência e Recuperação de Desastres
+- Stack Tecnológica
+- Tecnologias Utilizadas
+- Funcionalidades
+- Modelagem do Banco de Dados
+- Pré-requisitos
+- Instalação
+- Execução em Produção com PM2
+- Estrutura do Projeto
+- Exemplos de Uso
+- API — Rotas Principais
+- Equipe do Projeto
+- Melhorias Futuras
+- Licença
+- Status do Projeto
+
+---
 
 ## Identificação Acadêmica
-* **Instituição de Ensino:** SENAC - CEP Jó Rufino
-* **Curso:** Técnico em Desenvolvimento de Sistemas
-* **Disciplina:** Aplicativo Node.js
-* **Orientador:** Profº Hudson Neves
+
+- **Instituição de Ensino:** SENAC — CEP Jó Rufino
+- **Curso:** Técnico em Desenvolvimento de Sistemas
+- **Disciplina:** Aplicativo Node.js
+- **Orientador:** Profº Hudson Neves
 
 ---
 
 ## Descrição
-O RoboCV é uma aplicação de atendimento virtual e automação de serviços de alta complexidade. O sistema consiste em uma aplicação de chat persistente que integra uma interface web (landing page e painel administrativo) a um servidor backend em Node.js, utilizando comunicação em tempo real via Socket.IO. O sistema adota uma arquitetura multi-tenant com BFFs (Backend for Frontend) dedicados, integrando-se a APIs externas como WhatsApp (via Baileys) e Telegram (via Telegraf).
+
+O **RoboCV** é uma aplicação de atendimento virtual e automação de serviços de alta complexidade.
+
+O sistema consiste em uma aplicação de chat persistente que integra uma interface web, composta por landing page e painel administrativo, a um servidor backend desenvolvido em Node.js, utilizando comunicação em tempo real por meio do Socket.IO.
+
+A aplicação adota uma arquitetura **multi-tenant**, com BFFs (_Backend for Frontend_) dedicados, integrando-se a APIs externas, como WhatsApp, por meio da biblioteca Baileys, e Telegram, por meio da biblioteca Telegraf.
+
+---
 
 ## Objetivos
-* **Objetivo Geral:** Entregar uma solução de atendimento automatizado escalável, segura e de alta performance para múltiplos clientes (tenants).
-* **Problema que o sistema resolve:** Centralização de atendimentos de diferentes landing pages em um único broker de mensageria, mantendo o isolamento de dados, credenciais e conversas.
-* **Público-alvo:** Empresas que necessitam de atendimento virtual em suas landing pages (ex: RealizeDB, Telemedica).
+
+- **Objetivo geral:** Entregar uma solução de atendimento automatizado escalável, segura e de alta performance para múltiplos clientes (_tenants_).
+- **Problema que o sistema resolve:** Centralizar os atendimentos de diferentes landing pages em um único broker de mensageria, mantendo o isolamento de dados, credenciais e conversas.
+- **Público-alvo:** Empresas que necessitam de atendimento virtual em suas landing pages, como RealizeDB e Telemedica.
 
 ---
 
 ## Arquitetura da Solução (Multi-Tenant)
 
-O sistema opera com isolamento de responsabilidades por camadas, desde a borda até a persistência, garantindo que um tenant não afete o outro.
+O sistema opera com isolamento de responsabilidades por camadas, desde a borda até a persistência, garantindo que um _tenant_ não interfira nos demais.
 
-```text
+### Diagrama da Arquitetura
+
+text
+
+```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        CLOUDFLARE (Zero Trust)                      │
 │  ┌────────────────────┐  ┌────────────────────┐  ┌───────────────┐  │
@@ -41,7 +84,7 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
              │  Bearer Token         │  Bearer Token       │
              │  tenant: realizedb    │  tenant: telemedica │
              └───────────────────────┴─────────────────────┘
-                                     │     
+                                     │
                                      ▼
                             ┌─────────────────┐
                             │  MongoDB Atlas  │
@@ -54,172 +97,253 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
                             ┌──────────────────┐
                             │ WhatsApp Business│
                             │      API         │
-                            └─────────────────┘
-Pontos Arquiteturais Chave:
+                            └──────────────────┘
+```
 
-    Cloudflare (Zero Trust): Provê o túnel reverso, evitando a exposição de portas na Oracle Cloud (OCI).
+### Pontos Arquiteturais Chave
 
-    BFF (Backend For Frontend): Cada landing page possui seu próprio proxy dedicado (Node.js/Express) nas portas 3001 e 3002.
+- **Cloudflare (Zero Trust):** Provê o túnel reverso, evitando a exposição direta de portas na Oracle Cloud Infrastructure (OCI).
+- **BFF (Backend for Frontend):** Cada landing page possui seu próprio proxy dedicado, desenvolvido em Node.js/Express, nas portas 3001 e 3002.
+- **Isolamento de credenciais:** Os tokens de autenticação (_Bearer Tokens_) não devem ser expostos ao navegador. Cada proxy gerencia sua própria credencial.
+- **RoboCV (Message Broker):** Atua como API Gateway centralizado, recebendo requisições com o campo `tenant` para separar corretamente as conversas.
+- **MongoDB Atlas:** Banco de dados em nuvem que armazena as conversas de forma particionada por _tenant_.
 
-    Isolamento de Credenciais: Os tokens (Bearer Token) nunca chegam ao browser. Cada proxy gerencia sua credencial.
+---
 
-    Robocv (Message Broker): Atua como o API Gateway centralizado, recebendo requisições com o campo tenant para separar corretamente as conversas.
+## Desafios Arquiteturais: Por que não usamos a Vercel?
 
-    MongoDB Atlas: Banco de dados em nuvem que armazena as conversas de forma particionada pelos tenants.
+Durante o planejamento da infraestrutura, avaliamos a possibilidade de hospedar o backend do chat na Vercel, uma plataforma que oferece recursos de execução _serverless_. No entanto, a migração foi descartada devido a limitações técnicas para o modelo de funcionamento do RoboCV.
 
-Desafios Arquiteturais: Por que não usamos a Vercel?
+### O Problema com Serverless para Chat Persistente
 
-Durante o planejamento da infraestrutura, avaliamos a possibilidade de hospedar o backend do chat na Vercel (plataforma Serverless). No entanto, a migração foi descartada devido a limitações técnicas severas para o modelo de negócio do RoboCV.
-O Problema com Serverless para Chat Persistente
+A Vercel é adequada para funções de curta duração, como renderização no servidor (SSR) e APIs REST. Entretanto, o RoboCV depende de conexões WebSocket persistentes, implementadas com Socket.IO, e de processos contínuos.
 
-A Vercel é excelente para funções de curta duração (SSR, APIs REST), mas o RoboCV depende de conexões WebSocket persistentes (Socket.IO) e processos contínuos.
-Desafio na Vercel	Impacto no RoboCV	Solução na OCI
-Timeout de Funções	As conexões WebSocket são encerradas à força em poucos minutos. O chat cairia constantemente.	O processo Node.js roda de forma contínua e as conexões WebSocket ficam abertas indefinidamente.
-Stateless (Sem Estado)	Instâncias não compartilham memória. Um usuário não veria a mensagem do outro se caíssem em instâncias diferentes.	O PM2 mantém a aplicação como um processo único, garantindo o estado e a conexão.
-Cold Starts	A primeira requisição do dia pode demorar vários segundos para "acordar" a função.	O servidor está sempre "quente", respondendo em milissegundos.
-Processos em Background	Tarefas em background não rodam fora de requisições HTTP.	O servidor Node.js pode executar loops assíncronos e tarefas em background livremente.
-Resiliência e Recuperação de Desastres (Migração AWS para OCI)
+| Desafio na Vercel | Impacto no RoboCV | Solução na OCI |
+| --- | --- | --- |
+| **Timeout de funções** | Conexões persistentes podem ser interrompidas ou exigir uma arquitetura específica para manter a comunicação em tempo real. | O processo Node.js é executado continuamente, permitindo manter conexões persistentes conforme a configuração do servidor. |
+| **Stateless (sem estado)** | Instâncias independentes não compartilham automaticamente o estado em memória. | A aplicação pode manter estado no processo e utilizar mecanismos compartilhados quando necessários. |
+| **Cold starts** | Algumas funções podem apresentar latência adicional durante a inicialização. | O servidor permanece em execução, evitando a inicialização de uma função a cada requisição. |
+| **Processos em background** | Tarefas contínuas não são adequadas ao modelo de execução limitado de funções sob demanda. | O servidor Node.js pode executar tarefas assíncronas e processos em segundo plano enquanto estiver ativo. |
 
-Inicialmente, a aplicação foi hospedada na AWS. No entanto, a instância sofreu uma falha crítica de infraestrutura por problemas internos da própria AWS, resultando na perda do servidor e inviabilizando a recuperação no curto prazo.
+---
 
-Para garantir a continuidade do negócio, a arquitetura foi reconstruída e migrada emergencialmente para a Oracle Cloud Infrastructure (OCI). Essa transição forçada trouxe aprendizados valiosos e moldou a arquitetura atual:
+## Resiliência e Recuperação de Desastres (Migração AWS para OCI)
 
-    Isolamento de Rede: A adoção do Cloudflare Tunnel (Zero Trust) na OCI eliminou a necessidade de expor portas públicas, mitigando ataques e aumentando a segurança.
+Inicialmente, a aplicação foi hospedada na AWS. No entanto, a instância sofreu uma falha crítica de infraestrutura, resultando na perda do servidor e inviabilizando sua recuperação no curto prazo.
 
-    Recuperação Rápida: Com o código versionado no GitHub e o banco de dados em nuvem gerenciado (MongoDB Atlas), a reconstrução da aplicação na OCI foi realizada em tempo recorde.
+Para garantir a continuidade do projeto, a arquitetura foi reconstruída e migrada emergencialmente para a Oracle Cloud Infrastructure (OCI).
 
-    Alta Disponibilidade: A implementação do PM2 na OCI garantiu que, mesmo em caso de falhas no processo, o Node.js fosse reiniciado automaticamente, mantendo o sistema escalável e em produção.
+Essa transição trouxe aprendizados importantes e contribuiu para a arquitetura atual:
 
-Stack Tecnológica
+- **Isolamento de rede:** A adoção do Cloudflare Tunnel com Zero Trust na OCI eliminou a necessidade de expor diretamente portas públicas, contribuindo para a redução da superfície de ataque.
+- **Recuperação rápida:** Com o código versionado no GitHub e o banco de dados hospedado no MongoDB Atlas, a reconstrução da aplicação na OCI foi facilitada.
+- **Resiliência operacional:** A implementação do PM2 na OCI permite reiniciar automaticamente o processo Node.js em caso de falha, desde que o gerenciador e o ambiente permaneçam operacionais.
 
-A aplicação não é monolítica, nem puramente HTML. Ela é dividida em duas grandes camadas:
+---
 
-    Camada de Apresentação (Frontend): SPA (Single Page Application) desenvolvida em React (JavaScript) e empacotada pelo Vite. O código-fonte em JSX é compilado para um bundle otimizado de HTML, CSS e JavaScript.
+## Stack Tecnológica
 
-    Camada de Aplicação (Backend/Proxy): Servidor Node.js com o framework Express, responsável por servir os arquivos estáticos (build do React) e atuar como API Gateway (BFF) para o robocv.
+A aplicação não é monolítica nem composta exclusivamente por HTML. Sua arquitetura é dividida em duas grandes camadas:
 
-Tecnologias Utilizadas
+- **Camada de apresentação (Frontend):** SPA (_Single Page Application_) desenvolvida em React e JavaScript, empacotada pelo Vite. O código-fonte JSX é compilado para um conjunto otimizado de arquivos HTML, CSS e JavaScript.
+- **Camada de aplicação (Backend/Proxy):** Servidor Node.js com o framework Express, responsável por servir os arquivos estáticos gerados pelo build do React e atuar como API Gateway (BFF) para o RoboCV.
 
-    Runtime & Backend: Node.js, Express, Socket.IO.
+---
 
-    Frontend: React, Vite, HTML5, CSS3.
+## Tecnologias Utilizadas
 
-    Banco de Dados: MongoDB Atlas (via Mongoose).
+| Categoria | Tecnologias |
+| --- | --- |
+| **Runtime e Backend** | Node.js, Express, Socket.IO |
+| **Frontend** | React, Vite, HTML5, CSS3, JavaScript |
+| **Banco de dados** | MongoDB Atlas, Mongoose |
+| **Integrações** | `@whiskeysockets/baileys` (WhatsApp), Telegraf (Telegram), Axios |
+| **Infraestrutura e Deploy** | Oracle Cloud Infrastructure (OCI), PM2, Cloudflare Tunnel, dotenv |
 
-    Integrações: @whiskeysockets/baileys (WhatsApp), Telegraf (Telegram), Axios.
+---
 
-    Infraestrutura & Deploy: Oracle Cloud Infrastructure (OCI), PM2, Cloudflare Tunnel, dotenv.
+## Funcionalidades
 
-Funcionalidades
+- Atendimento por chat persistente em tempo real na landing page.
+- Painel administrativo privado para gestão de leads e visualização de métricas.
+- Integração com WhatsApp Web por meio do Baileys e com bots do Telegram.
+- Gerenciamento de sessões autenticadas, incluindo arquivos e diretórios de sessão.
+- **Multi-tenancy:** Isolamento de instâncias por domínio, visando garantir que os dados dos clientes não se misturem.
 
-    Atendimento via chat persistente em tempo real na landing page.
+---
 
-    Painel administrativo privado para gestão de leads e visualização de métricas.
+## Modelagem do Banco de Dados
 
-    Integração nativa com WhatsApp Web (Baileys) e Bot do Telegram.
+As principais entidades previstas na modelagem incluem:
 
-    Gerenciamento de sessões autenticadas (session/).
+- **Leads:** Dados de clientes, números de telefone, histórico de interações e status no funil de atendimento.
+- **Chamadas:** Registros de atendimentos, duração, mensagens trocadas e status.
+- **ImagemTela:** Referências a mídias, como imagens e vídeos, utilizadas pelo robô.
 
-    Multi-tenancy: isolamento de instâncias por domínio, garantindo que os dados não se misturem.
+---
 
-Modelagem do Banco de Dados
+## Pré-requisitos
 
-    Leads: Dados de clientes, número de telefone, histórico de interações e status no funil.
+Antes de iniciar a instalação, verifique se você possui:
 
-    Chamadas: Registro de atendimentos, duração, mensagens trocadas e status.
+- Node.js versão 18 ou superior.
+- Conta no MongoDB Atlas ou uma instalação local do MongoDB.
+- Acesso à internet para comunicação com as APIs do Telegram, WhatsApp e RoboCV.
+- **Opcional para produção:** Instância na OCI, PM2 instalado e Cloudflare Tunnel configurado.
 
-    ImagemTela: Referências para mídias (imagens e vídeos) utilizadas no robô.
+---
 
-Pré-requisitos
+## Instalação (Desenvolvimento)
 
-    Node.js (versão 18 ou superior).
+### 1\. Clone o repositório
 
-    Conta no MongoDB Atlas (ou MongoDB local).
+bash
 
-    Acesso à internet (para APIs do Telegram, WhatsApp e robocv).
-
-    (Opcional para produção) Instância na OCI, PM2 e Cloudflare Tunnel configurado.
-
-Instalação (Desenvolvimento)
-
-    Clone o repositório:
-    bash
-
+```
 git clone https://github.com/seu-usuario/robocv.git
+```
 
-Acesse o diretório:
+> **Observação:** Substitua `seu-usuario` pelo nome de usuário ou pela organização responsável pelo repositório.
+
+### 2\. Acesse o diretório do projeto
+
 bash
 
+```
 cd robocv
+```
 
-Instale as dependências:
+### 3\. Instale as dependências
+
 bash
 
+```
 npm install
+```
 
-Crie o arquivo .env com base no .env.example e preencha as credenciais do Mongo, Telegram e Robocv.
+### 4\. Configure as variáveis de ambiente
 
-Inicie o servidor:
+Crie o arquivo `.env` com base no arquivo `.env.example` e configure as credenciais necessárias para o MongoDB, Telegram e RoboCV.
+
+**Importante:** Não publique o arquivo `.env` nem credenciais, tokens ou senhas no repositório.
+
+### 5\. Inicie o servidor
+
 bash
+
+```
 node server.js
-Como Executar (Produção com PM2)
+```
 
-Para manter o sistema rodando continuamente e com resiliência na OCI, utiliza-se o PM2:
+---
+
+## Como Executar (Produção com PM2)
+
+Para manter a aplicação em execução na OCI, utiliza-se o PM2 como gerenciador de processos.
+
+### Iniciar a aplicação
+
 bash
 
+```
 pm2 start server.js --name "robocv"
-pm2 save
-pm2 startup
+```
 
-Para atualizar as variáveis de ambiente após editar o .env:
+### Salvar a configuração dos processos
+
 bash
 
+```
+pm2 save
+```
+
+### Configurar a inicialização automática
+
+bash
+
+```
+pm2 startup
+```
+
+Execute também o comando adicional exibido pelo PM2, caso seja solicitado, para concluir a configuração de inicialização automática.
+
+### Atualizar as variáveis de ambiente
+
+Após editar o arquivo `.env`, reinicie a aplicação para carregar as novas variáveis:
+
+bash
+
+```
 pm2 restart robocv --update-env
+```
 
-Estrutura do Projeto
+---
 
+## Estrutura do Projeto
+
+text
+
+```
 robocv/
 ├── package.json
 ├── package-lock.json
-├── server.js           # Arquivo principal do backend (Node.js/Express)
+├── server.js                 # Arquivo principal do backend (Node.js/Express)
 ├── private/
 │   └── admin/
-│       └── index.html  # Painel administrativo (acesso restrito)
-├── public/
-│   ├── images/         # Mídias enviadas pelo bot
-│   ├── videos/         # Vídeos de apresentação
-│   ├── landing/
-│   │   └── index.html  # Landing page pública (teia animada)
-│   └── premov.login.html # Tela de login
+│       └── index.html        # Painel administrativo (acesso restrito)
+└── public/
+    ├── images/               # Mídias enviadas pelo bot
+    ├── videos/               # Vídeos de apresentação
+    ├── landing/
+    │   └── index.html        # Landing page pública (teia animada)
+    └── premov.login.html     # Tela de login
+```
 
-Exemplos de Uso
+> **Nota:** A estrutura apresentada representa os diretórios e arquivos informados no projeto. Ajuste-a caso a estrutura real do repositório seja diferente.
 
-A ser definido pela equipe (instruções sobre como interagir com o chat ou o painel).
-API (Rotas Principais)
+---
 
-    POST /api/conversa/iniciar - Inicia uma nova conversa (via Robocv).
+## Exemplos de Uso
 
-    GET /status - Retorna o status do sistema (WhatsApp, Telegram, Mongo).
+Os exemplos de uso serão definidos pela equipe e poderão incluir instruções sobre como interagir com o chat, utilizar o painel administrativo e acompanhar os atendimentos.
 
-    GET /stats - Retorna métricas gerais de leads.
+---
 
-    GET /chamadas/pendentes - Lista chamadas aguardando atendimento.
-    (Verifique o arquivo server.js para a lista completa de endpoints).
+## API — Rotas Principais
 
-Equipe do Projeto
+As rotas principais informadas para a aplicação são:
 
-    Integrantes da equipe: A ser definido pela equipe.
+| Método HTTP | Endpoint | Descrição |
+| --- | --- | --- |
+| `POST` | `/api/conversa/iniciar` | Inicia uma nova conversa por meio do RoboCV. |
+| `GET` | `/status` | Retorna o status dos serviços, incluindo WhatsApp, Telegram e MongoDB. |
+| `GET` | `/stats` | Retorna métricas gerais de leads. |
+| `GET` | `/chamadas/pendentes` | Lista chamadas que aguardam atendimento. |
 
-Melhorias Futuras
+> **Nota:** Consulte o arquivo `server.js` para verificar a lista completa de endpoints, os métodos HTTP, os parâmetros e os requisitos de autenticação.
 
-    Implementação de autenticação robusta no painel administrativo (OAuth2/JWT).
+---
 
-    Criação de uma interface web para gerenciamento de tenants sem precisar editar .env.
+## Equipe do Projeto
 
-    Implementação de testes automatizados (Jest/Cypress).
+- **Integrantes:** A definir pela equipe.
 
-Licença
+---
 
-A ser definido pela equipe.
+## Melhorias Futuras
 
-Status do Projeto: Em desenvolvimento / Em produção
+- Implementação de autenticação robusta no painel administrativo, utilizando OAuth 2.0 e/ou JWT.
+- Criação de uma interface web para gerenciamento de _tenants_, sem necessidade de editar diretamente o arquivo `.env`.
+- Implementação de testes automatizados com Jest e Cypress.
+
+---
+
+## Licença
+
+A definir pela equipe.
+
+---
+
+## Status do Projeto
+
+**Situação:** Em desenvolvimento / Em produção.
