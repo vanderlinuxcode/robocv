@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover"
+    />
+    <title>CentronicTec - Atendimento Virtual de Alta Performance</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", "Orbitron", sans-serif;
+        background: #0a0a0a;
+        min-height: 100vh;
+        color: #fff;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      #teiaCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 0 16px 0;
+        border-bottom: 1px solid rgba(0, 245, 255, 0.08);
+        margin-bottom: 24px;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .header-left .logo-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #fff;
+        box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+      }
+      .header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+      }
+      .header h1 span {
+        color: #ff6b35;
+        -webkit-text-fill-color: #ff6b35;
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+        border: none;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 24px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 4px 20px rgba(0, 245, 255, 0.3);
+      }
+      .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 245, 255, 0.5);
+      }
+
+      .hero {
+        text-align: center;
+        padding: 60px 20px 40px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .hero h2 {
+        font-size: 2.6rem;
+        font-weight: 900;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          #00f5ff 50%,
+          #0066ff 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+      }
+      .hero p {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.65);
+        line-height: 1.7;
+        margin-bottom: 32px;
+        font-family: "Segoe UI", sans-serif;
+      }
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+        color: #fff;
+        padding: 16px 40px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: 1px;
+        box-shadow: 0 8px 30px rgba(0, 245, 255, 0.3);
+        transition: all 0.3s;
+      }
+      .hero-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(0, 245, 255, 0.5);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin: 40px 0 24px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(0, 245, 255, 0.3);
+        box-shadow: 0 12px 40px rgba(0, 245, 255, 0.1);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .card-header h3 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-family: "Orbitron", sans-serif;
+      }
+      .card-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .card-detail {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+      .card .icon-bg {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 4rem;
+        opacity: 0.04;
+        pointer-events: none;
+      }
+
+      .popup-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      .popup-overlay.visible {
+        display: flex;
+        opacity: 1;
+      }
+      .popup-box {
+        background: linear-gradient(
+          145deg,
+          rgba(10, 20, 30, 0.98),
+          rgba(0, 10, 20, 0.98)
+        );
+        border: 1px solid rgba(0, 245, 255, 0.25);
+        border-radius: 20px;
+        padding: 32px 28px;
+        max-width: 480px;
+        width: 100%;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 245, 255, 0.15);
+      }
+      .popup-icon {
+        font-size: 2.4rem;
+        margin-bottom: 12px;
+        display: block;
+      }
+      .popup-title {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.2rem;
+        color: #00f5ff;
+        margin-bottom: 12px;
+      }
+      .popup-text {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        font-family: "Segoe UI", sans-serif;
+      }
+      .popup-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .popup-close:hover {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff6b6b;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 40px 20px 25px;
+        margin-top: 60px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        font-family: "Orbitron", sans-serif;
+        letter-spacing: 1px;
+        position: relative;
+      }
+      .footer .footer-text {
+        font-size: 0.75rem;
+        background: linear-gradient(
+          180deg,
+          #ffffff 0%,
+          #c0c0c0 50%,
+          #ffffff 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 4s ease-in-out infinite;
+        display: inline-block;
+      }
+      .footer::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        box-shadow: 0 0 20px rgba(192, 192, 192, 0.15);
+      }
+      .footer .footer-sub {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.6rem;
+        color: rgba(192, 192, 192, 0.4);
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          filter: brightness(1);
+        }
+        50% {
+          filter: brightness(1.15);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hero h2 {
+          font-size: 1.8rem;
+        }
+        .hero p {
+          font-size: 0.95rem;
+        }
+        .header h1 {
+          font-size: 1.2rem;
+        }
+        .stats-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .card-value {
+          font-size: 1.6rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .container {
+          padding: 12px;
+        }
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          padding: 40px 12px 20px;
+        }
+        .hero h2 {
+          font-size: 1.5rem;
+        }
+        .card-value {
+          font-size: 1.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="teiaCanvas"></canvas>
+
+    <div class="container">
+      <div class="header">
+        <div class="header-left">
+          <div class="logo-icon">C</div>
+          <h1>CENTRONIC <span>TEC</span></h1>
+        </div>
+        <a href="https://robocv.centronictec.com.br/" class="btn-login">
+          <i class="fas fa-user-shield"></i> Acessar Painel
+        </a>
+      </div>
+
+      <section class="hero">
+        <h2>Atendimento Virtual de Alta Performance</h2>
+        <p>
+          Plataforma inteligente de atendimento automatizado com integração
+          WhatsApp e Telegram. Gerencie clientes, acompanhe métricas em tempo
+          real e escale seu atendimento com IA.
+        </p>
+        <a href="https://robocv.centronictec.com.br/" class="hero-cta">
+          <i class="fas fa-rocket"></i> Começar Agora
+        </a>
+      </section>
+
+      <div class="stats-grid">
+        <div class="card" data-popup="chamadas">
+          <div class="icon-bg"></div>
+          <div class="card-header"><h3>Chamadas</h3></div>
+          <div class="card-value">127</div>
+          <div class="card-detail">
+            Registro em tempo real das chamadas recebidas
+          </div>
+        </div>
+
+        <div class="card" data-popup="servicos">
+          <div class="icon-bg"></div>
+          <div class="card-header"><h3>Serviços</h3></div>
+          <div class="card-value">38</div>
+          <div class="card-detail">
+            Distribuição de demandas por tipo de serviço
+          </div>
+        </div>
+
+        <div class="card" data-popup="agendamentos">
+          <div class="icon-bg"></div>
+          <div class="card-header"><h3>Agendamentos</h3></div>
+          <div class="card-value">12</div>
+          <div class="card-detail">Visão consolidada dos agendamentos</div>
+        </div>
+
+        <div class="card" data-popup="clientes">
+          <div class="icon-bg"></div>
+          <div class="card-header"><h3>Clientes</h3></div>
+          <div class="card-value">204</div>
+          <div class="card-detail">
+            Base completa com histórico de interações
+          </div>
+        </div>
+
+        <div class="card" data-popup="leads">
+          <div class="icon-bg"></div>
+          <div class="card-header"><h3>Leads Total</h3></div>
+          <div class="card-value">1.284</div>
+          <div class="card-detail">
+            Captura contínua e métricas de conversão
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="footer-text"
+          >© 2026 CENTRONIC TECNOLOGIA • v3.0 Neural Algorithm</span
+        >
+        <span class="footer-sub"
+          >Todos os direitos reservados MIT - Vanderli Marques dos Reis</span
+        >
+      </div>
+    </div>
+
+    <div class="popup-overlay" id="popup">
+      <div class="popup-box">
+        <button class="popup-close" onclick="fecharPopup()" aria-label="Fechar">
+          ✕
+        </button>
+        <span class="popup-icon" id="popupIcon"></span>
+        <h3 class="popup-title" id="popupTitle"></h3>
+        <p class="popup-text" id="popupText"></p>
+      </div>
+    </div>
+
+    <script>
+      (function createTeiaBackground() {
+        const config = {
+          nodesCount: 40,
+          connectionDistance: 200,
+          nodeSize: 2.5,
+          speed: 0.2,
+          particleCount: 25,
+        };
+        const canvas = document.getElementById("teiaCanvas");
+        const ctx = canvas.getContext("2d");
+        let width, height, centerX, centerY;
+        let animationId = null,
+          lastFrameTime = 0;
+        const targetFPS = 30,
+          frameInterval = 1000 / targetFPS;
+
+        class Node {
+          constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * config.speed;
+            this.vy = (Math.random() - 0.5) * config.speed;
+            this.radius = config.nodeSize + Math.random() * 1.5;
+            this.pulse = Math.random() * Math.PI * 2;
+            this.pulseSpeed = 0.015 + Math.random() * 0.02;
+          }
+          update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.pulse += this.pulseSpeed;
+            if (this.x < 0 || this.x > width) this.vx *= -0.5;
+            if (this.y < 0 || this.y > height) this.vy *= -0.5;
+            this.x = Math.max(0, Math.min(width, this.x));
+            this.y = Math.max(0, Math.min(height, this.y));
+          }
+          draw() {
+            const dx = this.x - centerX,
+              dy = this.y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
+            const brightness = 1 - (dist / maxDist) * 0.7;
+            const pulseOffset = Math.sin(this.pulse) * 0.3 + 0.7;
+            const alpha = brightness * pulseOffset * 0.7 + 0.2;
+            const size = this.radius * (0.7 + Math.sin(this.pulse) * 0.3);
+            if (alpha > 0.05) {
+              const gradient = ctx.createRadialGradient(
+                this.x,
+                this.y,
+                0,
+                this.x,
+                this.y,
+                size * 3,
+              );
+              gradient.addColorStop(0, `rgba(0, 245, 255, ${alpha * 0.6})`);
+              gradient.addColorStop(1, "rgba(0, 245, 255, 0)");
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, size * 3, 0, Math.PI * 2);
+              ctx.fillStyle = gradient;
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+              ctx.fillStyle = `rgba(0, 245, 255, ${alpha * 0.8})`;
+              ctx.fill();
+            }
+          }
+        }
+
+        function drawConnections(nodes) {
+          const maxDist = config.connectionDistance,
+            maxDistSq = maxDist * maxDist;
+          for (let i = 0; i < nodes.length; i++) {
+            const a = nodes[i];
+            for (let j = i + 1; j < nodes.length; j++) {
+              const b = nodes[j];
+              const dx = a.x - b.x,
+                dy = a.y - b.y;
+              const distSq = dx * dx + dy * dy;
+              if (distSq < maxDistSq) {
+                const dist = Math.sqrt(distSq);
+                const alpha = (1 - dist / maxDist) * 0.4;
+                if (alpha > 0.02) {
+                  ctx.beginPath();
+                  ctx.moveTo(a.x, a.y);
+                  ctx.lineTo(b.x, b.y);
+                  ctx.strokeStyle = `rgba(0, 245, 255, ${alpha})`;
+                  ctx.lineWidth = 0.8;
+                  ctx.stroke();
+                }
+              }
+            }
+          }
+        }
+
+        function drawBackground() {
+          const gradient = ctx.createRadialGradient(
+            centerX,
+            centerY,
+            0,
+            centerX,
+            centerY,
+            Math.max(width, height) * 0.6,
+          );
+          gradient.addColorStop(0, "rgba(0, 20, 40, 0.85)");
+          gradient.addColorStop(0.5, "rgba(0, 10, 25, 0.93)");
+          gradient.addColorStop(1, "rgba(0, 0, 5, 1)");
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        class Particle {
+          constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 1 + 0.5;
+            this.speedX = (Math.random() - 0.5) * 0.15;
+            this.speedY = (Math.random() - 0.5) * 0.15;
+            this.opacity = Math.random() * 0.2 + 0.05;
+          }
+          update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > width) this.speedX *= -1;
+            if (this.y < 0 || this.y > height) this.speedY *= -1;
+          }
+          draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 245, 255, ${this.opacity})`;
+            ctx.fill();
+          }
+        }
+
+        let nodes = [],
+          particles = [];
+        function resize() {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          centerX = width / 2;
+          centerY = height / 2;
+          canvas.width = width;
+          canvas.height = height;
+          nodes = [];
+          for (let i = 0; i < config.nodesCount; i++) nodes.push(new Node());
+          particles = [];
+          for (let i = 0; i < config.particleCount; i++)
+            particles.push(new Particle());
+        }
+        function animate(timestamp) {
+          if (timestamp - lastFrameTime < frameInterval) {
+            animationId = requestAnimationFrame(animate);
+            return;
+          }
+          lastFrameTime = timestamp;
+          ctx.clearRect(0, 0, width, height);
+          drawBackground();
+          for (let p of particles) {
+            p.update();
+            p.draw();
+          }
+          for (let n of nodes) {
+            n.update();
+            n.draw();
+          }
+          drawConnections(nodes);
+          if (!document.hidden) animationId = requestAnimationFrame(animate);
+        }
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(resize, 200);
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (animationId) {
+              cancelAnimationFrame(animationId);
+              animationId = null;
+            }
+          } else {
+            lastFrameTime = 0;
+            if (!animationId) animationId = requestAnimationFrame(animate);
+          }
+        });
+        resize();
+        animationId = requestAnimationFrame(animate);
+      })();
+
+      const POPUPS = {
+        chamadas: {
+          icon: "",
+          titulo: "Chamadas em Tempo Real",
+          texto:
+            "Registro em tempo real de todas as chamadas recebidas via WhatsApp e Telegram. Acompanhe o status (pendente, em andamento, atendida) e o tempo médio de resposta do seu time.",
+        },
+        servicos: {
+          icon: "",
+          titulo: "Distribuição por Serviço",
+          texto:
+            "Distribuição de demandas por tipo de serviço. Entenda quais áreas geram mais volume, otimize a alocação da equipe e aumente a produtividade operacional.",
+        },
+        agendamentos: {
+          icon: "",
+          titulo: "Agendamentos Consolidados",
+          texto:
+            "Visão consolidada dos agendamentos confirmados, pendentes e cancelados. Integração direta com o calendário do hub e lembretes automáticos para reduzir faltas.",
+        },
+        clientes: {
+          icon: "",
+          titulo: "Base de Clientes",
+          texto:
+            "Base completa de clientes com histórico de interações, validações e score de engajamento. Análise de comportamento e segmentação automática para campanhas direcionadas.",
+        },
+        leads: {
+          icon: "",
+          titulo: "Captura de Leads",
+          texto:
+            "Captura contínua de leads, acompanhamento em tempo real e métricas de conversão. Integração com Telegram e WhatsApp para follow-up automático de alta performance.",
+        },
+      };
+
+      function abrirPopup(chave) {
+        const data = POPUPS[chave];
+        if (!data) return;
+        document.getElementById("popupIcon").textContent = data.icon;
+        document.getElementById("popupTitle").textContent = data.titulo;
+        document.getElementById("popupText").textContent = data.texto;
+        document.getElementById("popup").classList.add("visible");
+      }
+      function fecharPopup() {
+        document.getElementById("popup").classList.remove("visible");
+      }
+
+      document.querySelectorAll(".card[data-popup]").forEach((card) => {
+        const chave = card.dataset.popup;
+        let hoverTimeout;
+        if (window.matchMedia("(hover: hover)").matches) {
+          card.addEventListener("mouseenter", () => {
+            hoverTimeout = setTimeout(() => abrirPopup(chave), 300);
+          });
+          card.addEventListener("mouseleave", () => clearTimeout(hoverTimeout));
+        }
+        card.addEventListener("click", () => abrirPopup(chave));
+      });
+
+      document.getElementById("popup").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) fecharPopup();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") fecharPopup();
+      });
+
+      console.log("CentronicTec Landing carregada");
+    </script>
+  </body>
+</html>

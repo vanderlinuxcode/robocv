@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Restrito - Centronic</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --verde-wpp: rgb(18, 140, 126);
+        --verde-escuro: rgb(7, 94, 84);
+        --cinza-texto: rgb(44, 62, 80);
+        --cinza-suave: #7f8c8d;
+        --erro: #dc3545;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: linear-gradient(
+          145deg,
+          rgb(192, 217, 232) 0%,
+          rgb(224, 238, 247) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--cinza-texto);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+      }
+      .login-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        padding: 20px;
+        z-index: 1;
+      }
+      .login-card {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 44px 36px 36px;
+        box-shadow:
+          0 24px 60px rgba(0, 0, 0, 0.18),
+          0 2px 4px rgba(0, 0, 0, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        animation: cardIn 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.05);
+      }
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .login-header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .shield {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--verde-wpp),
+          var(--verde-escuro)
+        );
+        box-shadow:
+          0 8px 20px rgba(7, 94, 84, 0.35),
+          inset 0 2px 4px rgba(255, 255, 255, 0.25),
+          inset 0 -2px 6px rgba(0, 0, 0, 0.25);
+      }
+      .shield svg {
+        width: 32px;
+        height: 32px;
+      }
+      .login-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--verde-escuro);
+        letter-spacing: -0.2px;
+      }
+      .login-sub {
+        font-size: 0.82rem;
+        color: var(--cinza-suave);
+        margin-top: 6px;
+        font-weight: 500;
+      }
+      .field {
+        position: relative;
+        margin-bottom: 18px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--cinza-suave);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 6px;
+      }
+      .field input {
+        width: 100%;
+        padding: 13px 14px 13px 42px;
+        border: 1.5px solid #e0e6ed;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        background: #f8fafc;
+        color: var(--cinza-texto);
+        transition: all 0.18s ease;
+        font-family: inherit;
+      }
+      .field input:focus {
+        outline: none;
+        border-color: var(--verde-wpp);
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(18, 140, 126, 0.12);
+      }
+      .field .icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-25%);
+        font-size: 1rem;
+        color: var(--cinza-suave);
+        pointer-events: none;
+      }
+      .btn-login {
+        width: 100%;
+        padding: 14px;
+        margin-top: 6px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(
+          135deg,
+          var(--verde-wpp),
+          var(--verde-escuro)
+        );
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.18s ease,
+          filter 0.18s ease;
+        box-shadow:
+          0 6px 16px rgba(7, 94, 84, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      .btn-login:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow:
+          0 10px 22px rgba(7, 94, 84, 0.42),
+          inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        filter: brightness(1.05);
+      }
+      .btn-login:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+      .erro {
+        display: none;
+        background: #fdecea;
+        color: var(--erro);
+        border: 1px solid #f5c6cb;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+        text-align: center;
+        animation: shake 0.35s ease;
+      }
+      .erro.visible {
+        display: block;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-6px);
+        }
+        40%,
+        80% {
+          transform: translateX(6px);
+        }
+      }
+      .login-footer {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 0.72rem;
+        color: var(--cinza-suave);
+      }
+      .login-footer strong {
+        color: var(--verde-escuro);
+        font-weight: 600;
+      }
+      @media (max-width: 440px) {
+        .login-card {
+          padding: 34px 24px 28px;
+          border-radius: 16px;
+        }
+        .shield {
+          width: 56px;
+          height: 56px;
+        }
+        .shield svg {
+          width: 28px;
+          height: 28px;
+        }
+        .login-title {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="shield" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+          </div>
+          <h1 class="login-title">Acesso Restrito</h1>
+          <p class="login-sub">Centronic • Dashboard Profissional</p>
+        </div>
+        <div id="erro" class="erro" role="alert"></div>
+        <form id="loginForm" autocomplete="on">
+          <div class="field">
+            <label for="usuario">Usuário</label>
+            <span class="icon" aria-hidden="true"></span>
+            <input
+              type="text"
+              id="usuario"
+              name="usuario"
+              autocomplete="username"
+              required
+              autofocus
+              spellcheck="false"
+              autocapitalize="off"
+            />
+          </div>
+          <div class="field">
+            <label for="senha">Senha</label>
+            <span class="icon" aria-hidden="true"></span>
+            <input
+              type="password"
+              id="senha"
+              name="senha"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          <button type="submit" id="btn" class="btn-login">Entrar</button>
+        </form>
+        <div class="login-footer">
+          © <span id="ano"></span> <strong>Centronic Tecnologia</strong>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.getElementById("ano").textContent = new Date().getFullYear();
+      const form = document.getElementById("loginForm");
+      const btn = document.getElementById("btn");
+      const erro = document.getElementById("erro");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        erro.classList.remove("visible");
+        btn.disabled = true;
+        btn.textContent = "Verificando...";
+        try {
+          const resp = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(new FormData(form)),
+          });
+          const data = await resp.json();
+          if (resp.ok && data.ok) {
+            btn.textContent = "Acesso liberado";
+            window.location.href = "/";
+            return;
+          }
+          erro.textContent = data.erro || "Falha no acesso";
+          erro.classList.add("visible");
+          btn.disabled = false;
+          btn.textContent = "Entrar";
+          document.getElementById("senha").value = "";
+          document.getElementById("senha").focus();
+        } catch (err) {
+          erro.textContent = "Erro de conexão. Tente novamente.";
+          erro.classList.add("visible");
+          btn.disabled = false;
+          btn.textContent = "Entrar";
+        }
+      });
+    </script>
+  </body>
+</html>
