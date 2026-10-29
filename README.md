@@ -64,7 +64,6 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
 
 ### Diagrama da Arquitetura
 
-<<<<<<< HEAD
 ```mermaid
 flowchart TB
     USER["Usuários / Navegadores"]
@@ -129,7 +128,6 @@ flowchart TB
 ```text
 <img width="2246" height="2948" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/62352b8b-de28-4828-b04d-9e699188c54f" />
 
->>>>>>> 83d298547080153511232b1290d3a6c5e7740915
 ```
 
 ### Pontos Arquiteturais Chave
