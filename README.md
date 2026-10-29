@@ -64,38 +64,8 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
 ### Diagrama da Arquitetura
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│                        CLOUDFLARE (Zero Trust)                           │
-│  ┌────────────────────┐  ┌────────────────────┐  ┌────────────────────┐  │
-│  │ realizedb.         │  │ telemedica.        │  │ robocv.            │  │
-│  │ centronictec.com.br│  │ centronictec.com.br│  │ centronictec.com.br│  │
-│  └─────────┬──────────┘  └─────────┬──────────┘  └───────┬────────────┘  │
-└────────────┼───────────────────────┼─────────────────────┼───────────────┘
-             │                       │                     │
-             ▼                       ▼                     ▼
-     ┌───────────────┐       ┌───────────────┐     ┌───────────────┐
-     │  Proxy 3001   │       │  Proxy 3002   │     │  Robocv 3000  │
-     │  realizedb OK │       │  telemedica OK│     │  multi-tenant │
-     │  + MongoDB    │       │  (sem banco)  │     │     B.T.P     │
-     └───────┬───────┘       └───────┬───────┘     └───────┬───────┘
-             │                       │                     │
-             │  Bearer Token         │  Bearer Token       │
-             │  tenant: realizedb    │  tenant: telemedica │
-             └───────────────────────┴─────────────────────┘
-                                     │
-                                     ▼
-                            ┌─────────────────┐
-                            │  MongoDB Atlas  │
-                            │  (tenants:      │
-                            │   realizedb,    │
-                            │   telemedica)   │
-                            └─────────────────┘
-                                     │
-                                     ▼
-                            ┌──────────────────┐
-                            │ WhatsApp Business│
-                            │      API         │
-                            └──────────────────┘
+<img width="2246" height="2948" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/62352b8b-de28-4828-b04d-9e699188c54f" />
+
 ```
 
 ### Pontos Arquiteturais Chave
