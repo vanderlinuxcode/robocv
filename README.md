@@ -124,10 +124,6 @@ flowchart TB
     class CF,H1,H2,H3,UB,T cloud
     class P1,P2,P3 app
     class MDB,WA data
-=======
-```text
-<img width="2246" height="2948" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/62352b8b-de28-4828-b04d-9e699188c54f" />
-
 ```
 
 ### Pontos Arquiteturais Chave
