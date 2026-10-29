@@ -1,3 +1,4 @@
+cat README.md 
 
 # RoboCV — Plataforma Multi-Tenant de Atendimento Conversacional
 
@@ -61,39 +62,66 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
 
 ### Diagrama da Arquitetura
 
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CLOUDFLARE (Zero Trust)                      │
-│  ┌────────────────────┐  ┌────────────────────┐  ┌───────────────┐  │
-│  │ realizedb.         │  │ telemedica.        │  │ robocv.       │  │
-│  │ centronictec.com.br│  │ centronictec.com.br│  │ centronictec  │  │
-│  └─────────┬──────────┘  └─────────┬──────────┘  └───────┬───────┘  │
-└────────────┼───────────────────────┼─────────────────────┼──────────┘
-             │                       │                     │
-             ▼                       ▼                     ▼
-     ┌───────────────┐       ┌───────────────┐     ┌───────────────┐
-     │  Proxy 3001   │       │  Proxy 3002   │     │  Robocv 3000  │
-     │  realizedb OK │       │  telemedica OK│     │  multi-tenant │
-     │  + MongoDB    │       │  (sem banco)  │     │     B.T.P     │
-     └───────┬───────┘       └───────┬───────┘     └───────┬───────┘
-             │                       │                     │
-             │  Bearer Token         │  Bearer Token       │
-             │  tenant: realizedb    │  tenant: telemedica │
-             └───────────────────────┴─────────────────────┘
-                                     │
-                                     ▼
-                            ┌─────────────────┐
-                            │  MongoDB Atlas  │
-                            │  (tenants:      │
-                            │   realizedb,    │
-                            │   telemedica)   │
-                            └─────────────────┘
-                                     │
-                                     ▼
-                            ┌──────────────────┐
-                            │ WhatsApp Business│
-                            │      API         │
-                            └──────────────────┘
+```mermaid
+flowchart TB
+    USER["Usuários / Navegadores"]
+
+    subgraph DOMAIN["1. Registro e DNS"]
+        REG["Registro.br<br/>Domínio: centronictec.com.br"]
+        DNS["Cloudflare DNS<br/>Nameservers e registros DNS"]
+        REG -->|"Delegação DNS"| DNS
+    end
+
+    subgraph CLOUDFLARE["2. Cloudflare Zero Trust"]
+        CF["Cloudflare Edge<br/>HTTPS / Proxy / Proteção"]
+        H1["realizedb.centronictec.com.br"]
+        H2["telemedica.centronictec.com.br"]
+        H3["robocv.centronictec.com.br"]
+
+        H1 --> CF
+        H2 --> CF
+        H3 --> CF
+    end
+
+    subgraph OCI["3. Oracle Cloud Infrastructure — OCI"]
+        UB["OCI Compute<br/>Ubuntu Linux"]
+
+        T["cloudflared<br/>Cloudflare Tunnel"]
+
+        subgraph SERVICES["Serviços locais"]
+            P1["Proxy :3001<br/>realizedb"]
+            P2["Proxy :3002<br/>telemedica"]
+            P3["Robocv :3000<br/>Multi-tenant B.T.P"]
+        end
+
+        UB --> T
+        T --> P1
+        T --> P2
+        T --> P3
+    end
+
+    subgraph EXTERNAL["4. Serviços externos"]
+        MDB["MongoDB Atlas<br/>Tenants: realizedb e telemedica"]
+        WA["WhatsApp Business API"]
+    end
+
+    USER -->|"HTTPS"| CF
+    DNS -.->|"Resolução DNS"| CF
+    CF <-->|"Túnel criptografado"| T
+
+    P1 -->|"Bearer Token<br/>tenant: realizedb"| MDB
+    P2 -->|"Bearer Token<br/>tenant: telemedica"| MDB
+    P3 -.->|"Integração conforme configuração"| WA
+
+    classDef dns fill:#e8f0fe,stroke:#4285f4,color:#172554
+    classDef cloud fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    classDef app fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef data fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    class REG,DNS,USER dns
+    class CF,H1,H2,H3,UB,T cloud
+    class P1,P2,P3 app
+    class MDB,WA data
 ```
 
 ### Pontos Arquiteturais Chave
@@ -325,4 +353,3 @@ A definir pela equipe.
 ## Status do Projeto
 
 **Situação:** Em desenvolvimento / Em produção.
-
