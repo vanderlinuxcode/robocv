@@ -505,11 +505,11 @@ Olá {nome}! Que bom ter você por aqui.
 
 Como podemos te ajudar hoje?
 
-1️⃣ Temos sites para o que procura
-2️⃣ Falar com um atendente humano
-3️⃣ Entenda o menu
-4️⃣  Ver vídeo de apresentação
-0️⃣ Desejo não ser mais incomodado(a)
+1️ Temos sites para o que procura
+2️ Falar com um atendente humano
+3️ Entenda o menu
+4️  Ver vídeo de apresentação
+0️ Desejo não ser mais incomodado(a)
 
  Responda com o *número* da opção desejada.`;
 
@@ -517,30 +517,30 @@ const TEXTO_CATALOGO = ` *Acesso ao site Disponível + Chat*
 
 {nome}, separei algumas opções que podem te interessar:
 
-1️⃣  Elétrica de autos America
-2️⃣  Telemedicina Cães
-3️⃣  Faixas de propaganda / publicidade
-4️⃣  Saboreie uma bela pizza
-6️⃣  Voltar ao menu principal
-0️⃣ Desejo não ser mais incomodado(a)
+1️  Elétrica de autos America
+2️  Telemedicina Cães
+3️  Faixas de propaganda / publicidade
+4️  Saboreie uma bela pizza
+6️  Voltar ao menu principal
+0️ Desejo não ser mais incomodado(a)
 
  Responda com o *número* para ver a foto do serviço.`;
 
 const TEXTO_MENU_ENTENDA = ` *ENTENDA O MENU*
 
-1️⃣ *Temos sites para o que procura*
+1️ *Temos sites para o que procura*
    Acesso às landingpages com chat direto no hub.
 
-2️⃣ *Falar com um atendente humano*
+2️ *Falar com um atendente humano*
    Um Analista falará com você pelo WhatsApp.
 
-3️⃣ *Entenda o menu*
+3️ *Entenda o menu*
    É esta tela que você está vendo agora. 
 
-4️⃣ *Ver vídeo de apresentação*
+4️ *Ver vídeo de apresentação*
    Um resumo rápido do que fazemos.
 
-0️⃣ *Desejo não ser mais incomodado(a)*
+0️*Desejo não ser mais incomodado(a)*
    Você sai da lista e não recebe mais mensagens.
 
 Digite *menu* a qualquer momento para voltar.`;
@@ -926,7 +926,7 @@ async function processarMensagemWhatsAppCliente(msg) {
           chamadaId: chamadaAtiva._id,
         });
 
-        return; // ⭐ IMPEDE que o bot responda com o menu
+        return; 
       }
     }
 
@@ -1185,7 +1185,7 @@ async function processarMensagemWhatsAppCliente(msg) {
           chatId,
           "pizza",
           jidReal,
-          "4️⃣ Digite *6* voltar, *0* sair.",
+          "4️ Digite *6* voltar, *0* sair.",
         );
         lead.interacoes.push({
           mensagem: "Bot: Foto pizza exibida",
@@ -1545,7 +1545,7 @@ function iniciarTelegramBot() {
         const botoes = [
           [Markup.button.callback(" Todos", "clientes_todos")],
           [Markup.button.callback(" Novos Hoje", "clientes_novos")],
-          [Markup.button.callback("⭐ Mais Avaliados", "clientes_top")],
+          [Markup.button.callback(" Mais Avaliados", "clientes_top")],
           [Markup.button.callback(" Voltar", "voltar")],
         ];
         await safeEditMessage(
@@ -1622,13 +1622,13 @@ function iniciarTelegramBot() {
             .sort({ rating: -1 })
             .limit(20);
           if (leads.length === 0) {
-            await safeEditMessage(ctx, "⭐ Nenhum avaliado.", menuPrincipal());
+            await safeEditMessage(ctx, " Nenhum avaliado.", menuPrincipal());
             return;
           }
-          let lista = `⭐ *MAIS AVALIADOS*\n\n`;
+          let lista = ` *MAIS AVALIADOS*\n\n`;
           leads.forEach((l) => {
             const telReal = telefoneRealLead(l);
-            lista += ` ${l.nome || "Sem nome"}\n    ${formatarTelefone(telReal) || "Número não informado"}\n   ⭐ ${"".repeat(l.rating)}${"".repeat(5 - l.rating)}\n\n`;
+            lista += ` ${l.nome || "Sem nome"}\n    ${formatarTelefone(telReal) || "Número não informado"}\n    ${"".repeat(l.rating)}${"".repeat(5 - l.rating)}\n\n`;
           });
           await safeEditMessage(
             ctx,
@@ -1809,7 +1809,7 @@ function iniciarTelegramBot() {
         await ctx.answerCbQuery();
         await safeEditMessage(
           ctx,
-          `ℹ️ *AJUDA*\n\n *Comandos:*\n/start - Menu\n/buscar [termo]\n/campanha [msg]\n/status\n\n *WhatsApp:* ${waStatus === "pronto" ? " Conectado" : " Desconectado"}\n *MongoDB:* ${mongoConnected ? " Conectado" : " Desconectado"}`,
+          ` *AJUDA*\n\n *Comandos:*\n/start - Menu\n/buscar [termo]\n/campanha [msg]\n/status\n\n *WhatsApp:* ${waStatus === "pronto" ? " Conectado" : " Desconectado"}\n *MongoDB:* ${mongoConnected ? " Conectado" : " Desconectado"}`,
           menuPrincipal(),
         );
       });
