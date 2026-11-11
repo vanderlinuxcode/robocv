@@ -31,7 +31,7 @@
 
 - **Instituição de Ensino:** SENAC — CEP Jó Rufino 2025 / 2026
 - **Curso:** Técnico em Desenvolvimento de Sistemas
-- **Disciplina:** Aplicativo Node.js
+- **Disciplina:** Projeto Integrador
 - **Orientador:** Profº Hudson Neves
 - **Aluno:** Vanderli Marques dos Reis
 
