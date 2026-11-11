@@ -42,7 +42,7 @@
 
 O **RoboCV** é uma aplicação de atendimento virtual e automação de serviços de alta complexidade.
 
-O sistema consiste em uma aplicação de chat persistente que integra uma interface web, composta por landing page e painel administrativo, a um servidor backend desenvolvido em Node.js, utilizando comunicação em tempo real por meio do Socket.IO.
+O sistema consiste em uma aplicação de chat persistente que integra uma interface web, composta por landing page e painel administrativo a um servidor backend desenvolvido em Node.js, utilizando comunicação em tempo real por meio do Socket.IO que é uma biblioteca independente de comunicação bidirecional.
 
 A aplicação adota uma arquitetura **multi-tenant**, com BFFs (*Backend for Frontend*) dedicados, integrando-se a APIs externas, como WhatsApp, por meio da biblioteca Baileys, e Telegram, por meio da biblioteca Telegraf.
 
@@ -52,7 +52,7 @@ A aplicação adota uma arquitetura **multi-tenant**, com BFFs (*Backend for Fro
 
 - **Objetivo geral:** Entregar uma solução de atendimento automatizado escalável, segura e de alta performance para múltiplos clientes (*tenants*).
 - **Problema que o sistema resolve:** Centralizar os atendimentos de diferentes landing pages em um único broker de mensageria, mantendo o isolamento de dados, credenciais e conversas.
-- **Público-alvo:** Empresas que necessitam de atendimento virtual em suas landing pages, como RealizeDB, Telemedica e o portal TI (`ti.centronictec.com.br`).
+- **Público-alvo:** Empresas que necessitam de atendimento virtual em suas landing pages, como RealizeDB, Telemedica e o portal TI (`ti.centronictec.com.br`), este por sua vez é o site oficial das técnicas ao longo dos anos de profissão em Tecnologia da Informação.
 
 ---
 
@@ -85,10 +85,13 @@ flowchart TB
         H1["realizedb.centronictec.com.br"]
         H2["telemedica.centronictec.com.br"]
         H3["robocv.centronictec.com.br"]
+        H4["ti.centronictec.com.br"]
+        
 
         H1 --> CF
         H2 --> CF
         H3 --> CF
+        H4 --> CF
     end
 
     subgraph OCI["3. Oracle Cloud Infrastructure — OCI"]
@@ -99,17 +102,19 @@ flowchart TB
         subgraph SERVICES["Serviços locais"]
             P1["Proxy :3001<br/>realizedb"]
             P2["Proxy :3002<br/>telemedica"]
-            P3["Robocv :3000<br/>Multi-tenant B.T.P"]
+            P3["Proxy :3003<br/>ti"]
+            P4["Robocv :3000<br/>Multi-tenant B.T.P"]
         end
 
         UB --> T
         T --> P1
         T --> P2
         T --> P3
+        T --> P4
     end
 
     subgraph EXTERNAL["4. Serviços externos"]
-        MDB["MongoDB Atlas<br/>Tenants: realizedb e telemedica"]
+        MDB["MongoDB Atlas<br/>Tenants: realizedb, telemedica e TI"]
         WA["WhatsApp Business API"]
     end
 
@@ -119,7 +124,8 @@ flowchart TB
 
     P1 -->|"Bearer Token<br/>tenant: realizedb"| MDB
     P2 -->|"Bearer Token<br/>tenant: telemedica"| MDB
-    P3 -.->|"Integração conforme configuração"| WA
+    P3 -->|"Bearer Token<br/>tenant: ti"| MDB
+    P4 -.->|"Integração conforme configuração"| WA
 
     classDef dns fill:#e8f0fe,stroke:#4285f4,color:#172554
     classDef cloud fill:#f3e8ff,stroke:#9333ea,color:#581c87
@@ -127,14 +133,14 @@ flowchart TB
     classDef data fill:#fef3c7,stroke:#d97706,color:#78350f
 
     class REG,DNS,USER dns
-    class CF,H1,H2,H3,UB,T cloud
-    class P1,P2,P3 app
+    class CF,H1,H2,H3,H4,UB,T cloud
+    class P1,P2,P3,P4 app
     class MDB,WA data
 ```
 ### Pontos Arquiteturais Chave
 
 - **Cloudflare (Zero Trust):** Provê o túnel reverso, evitando a exposição direta de portas na Oracle Cloud Infrastructure (OCI).
-- **BFF (Backend for Frontend):** Cada landing page possui seu próprio proxy dedicado, desenvolvido em Node.js/Express, nas portas 3001 e 3002.
+- **BFF (Backend for Frontend):** Cada landing page possui seu próprio proxy dedicado, desenvolvido em Node.js/Express, nas portas 3001, 3002 e 3003.
 - **Isolamento de credenciais:** Os tokens de autenticação (*Bearer Tokens*) não devem ser expostos ao navegador. Cada proxy gerencia sua própria credencial.
 - **RoboCV (Message Broker):** Atua como API Gateway centralizado, recebendo requisições com o campo `tenant` para separar corretamente as conversas.
 - **MongoDB Atlas:** Banco de dados em nuvem que armazena as conversas de forma particionada por *tenant*.
