@@ -68,7 +68,6 @@ O sistema opera com isolamento de responsabilidades por camadas, desde a borda a
 
 <div style="overflow-x: auto; max-width: 100%; padding: 10px 0;">
 
-```mermaid
 ### Diagrama da Arquitetura
 
 ```mermaid
@@ -85,13 +84,11 @@ flowchart TB
         CF["Cloudflare Edge<br/>HTTPS / Proxy / Proteção"]
         H1["realizedb.centronictec.com.br"]
         H2["telemedica.centronictec.com.br"]
-        H3["ti.centronictec.com.br<br/>(Portal TI Multi-Tenant)"]
-        H4["robocv.centronictec.com.br"]
+        H3["robocv.centronictec.com.br"]
 
         H1 --> CF
         H2 --> CF
         H3 --> CF
-        H4 --> CF
     end
 
     subgraph OCI["3. Oracle Cloud Infrastructure — OCI"]
@@ -102,19 +99,17 @@ flowchart TB
         subgraph SERVICES["Serviços locais"]
             P1["Proxy :3001<br/>realizedb"]
             P2["Proxy :3002<br/>telemedica"]
-            P3["Proxy :3003<br/>ti.centronictec"]
-            P4["Robocv :3000<br/>Multi-tenant B.T.P"]
+            P3["Robocv :3000<br/>Multi-tenant B.T.P"]
         end
 
         UB --> T
         T --> P1
         T --> P2
         T --> P3
-        T --> P4
     end
 
     subgraph EXTERNAL["4. Serviços externos"]
-        MDB["MongoDB Atlas<br/>Tenants: realizedb, telemedica e ti"]
+        MDB["MongoDB Atlas<br/>Tenants: realizedb e telemedica"]
         WA["WhatsApp Business API"]
     end
 
@@ -124,8 +119,7 @@ flowchart TB
 
     P1 -->|"Bearer Token<br/>tenant: realizedb"| MDB
     P2 -->|"Bearer Token<br/>tenant: telemedica"| MDB
-    P3 -->|"Bearer Token<br/>tenant: ti"| MDB
-    P4 -.->|"Integração conforme configuração"| WA
+    P3 -.->|"Integração conforme configuração"| WA
 
     classDef dns fill:#e8f0fe,stroke:#4285f4,color:#172554
     classDef cloud fill:#f3e8ff,stroke:#9333ea,color:#581c87
@@ -133,11 +127,10 @@ flowchart TB
     classDef data fill:#fef3c7,stroke:#d97706,color:#78350f
 
     class REG,DNS,USER dns
-    class CF,H1,H2,H3,H4,UB,T cloud
-    class P1,P2,P3,P4 app
+    class CF,H1,H2,H3,UB,T cloud
+    class P1,P2,P3 app
     class MDB,WA data
 ```
-
 ### Pontos Arquiteturais Chave
 
 - **Cloudflare (Zero Trust):** Provê o túnel reverso, evitando a exposição direta de portas na Oracle Cloud Infrastructure (OCI).
